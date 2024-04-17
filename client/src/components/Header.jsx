@@ -6,15 +6,15 @@ import { FaMoon } from "react-icons/fa";
 export default function Header() {
     const path = useLocation().pathname;
     return (
-        <Navbar className="border-b-2">
+        <Navbar className="border-b-2 bg-bg-head">
             <Link
                 to="/"
-                className=" text-sm sm:text-xl font-semibold dark:text-white "
+                className="self-center whitespace-nowrap text-sm sm:text-base font-semibold dark:text-white   "
             >
-                <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
-                    Медицинский
+                <span className="mr-2 px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
+                    ЭМКР
                 </span>
-                Блог
+                Электронная медицинская карта реабилитаций
             </Link>
             <form>
                 <TextInput
