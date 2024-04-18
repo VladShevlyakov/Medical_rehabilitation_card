@@ -41,10 +41,10 @@ export default function SignUp() {
         <div className="min-h-screen mt-20 font-medium ">
             <div className="flex flex-col p-3 max-w-3xl  mx-auto md:flex-row md:items-center gap-5">
                 {/* левая часть */}
-                <div className="flex-1">
+                <div className="flex-1 mt-2">
                     <Link
                         to="/"
-                        className="font-bold dark:text-white  text-4xl"
+                        className=" font-bold dark:text-white  text-4xl"
                     >
                         <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
                             ЭМКР

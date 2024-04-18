@@ -7,6 +7,8 @@ module.exports = {
     theme: {
         colors: {
             "bg-head": "#39AA9D",
+            "bg-foot-start": "#58bdc4 0%",
+            "bg-foot-end": "#3eb3a5 100%",
         },
         extend: {},
     },

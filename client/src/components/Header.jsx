@@ -9,12 +9,12 @@ export default function Header() {
         <Navbar className="border-b-2 bg-bg-head">
             <Link
                 to="/"
-                className="self-center whitespace-nowrap text-sm sm:text-base font-semibold dark:text-white   "
+                className="self-center whitespace-nowrap text-sm sm:text-base text-white font-semibold dark:text-white   "
             >
                 <span className="mr-2 px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
                     ЭМКР
                 </span>
-                Электронная медицинская карта реабилитаций
+                Электронная Медицинская Карта Реабилитаций
             </Link>
             <form>
                 <TextInput
