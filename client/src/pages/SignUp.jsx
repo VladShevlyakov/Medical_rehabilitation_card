@@ -39,9 +39,9 @@ export default function SignUp() {
     };
     return (
         <div className="min-h-screen mt-20 font-medium ">
-            <div className="flex flex-col p-3 max-w-3xl  mx-auto md:flex-row md:items-center gap-5">
+            <div className="flex flex-col p-3 max-w-3xl  mx-auto md:flex-row gap-5">
                 {/* левая часть */}
-                <div className="flex-1 mt-2">
+                <div className="flex-1 mt-4">
                     <Link
                         to="/"
                         className=" font-bold dark:text-white  text-4xl"
@@ -51,8 +51,8 @@ export default function SignUp() {
                         </span>
                     </Link>
                     <p className="text-sm mt-5">
-                        Это демо-приложение. Вы можете войти с помощью номера
-                        снилса и пароля или через госуслуги.
+                        Это демо-приложение. Вы можете зарегистрироваться с
+                        помощью номера снилса и пароля или через госуслуги.
                     </p>
                 </div>
                 {/* правая часть */}
@@ -61,7 +61,7 @@ export default function SignUp() {
                         className="flex flex-col gap-4"
                         onSubmit={handleSubmit}
                     >
-                        <div className="">
+                        <div>
                             <Label value="Ваш логин" />
                             <TextInput
                                 type="text"
@@ -70,7 +70,7 @@ export default function SignUp() {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="">
+                        <div>
                             <Label value="Ваша почта" />
                             <TextInput
                                 type="email"
@@ -79,7 +79,7 @@ export default function SignUp() {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="">
+                        <div>
                             <Label value="Ваш пароль" />
                             <TextInput
                                 type="password"
