@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Button, TextInput } from "flowbite-react";
 import { useSelector } from "react-redux";
 
@@ -37,4 +38,8 @@ export default function DashProfile() {
             </div>
         </div>
     );
+=======
+export default function DashProfile() {
+    return <div>DashProfile</div>;
+>>>>>>> 6fc615f7a622b6426048a94f380c5a1c7a6a31fb
 }
