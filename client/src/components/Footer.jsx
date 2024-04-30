@@ -55,7 +55,7 @@ export default function FooterCom() {
                             <Footer.Title title="Полезно" />
                             <Footer.LinkGroup col>
                                 <Footer.Link
-                                    href="/"
+                                    href="/dashboard?tab=profile"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
