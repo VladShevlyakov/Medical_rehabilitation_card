@@ -20,9 +20,10 @@ import {
     signoutSuccess,
 } from "../redux/user/userSlice";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 export default function DashProfile() {
-    const { currentUser, error } = useSelector((state) => state.user);
+    const { currentUser, error, loading } = useSelector((state) => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageFileUploadProgress, setImageFileUploadProgress] =
@@ -238,9 +239,25 @@ export default function DashProfile() {
                     placeholder="Пароль"
                     onChange={handleChange}
                 />
-                <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-                    Изменить
+                <Button
+                    type="submit"
+                    gradientDuoTone="purpleToBlue"
+                    outline
+                    disabled={loading || imageFileUploading}
+                >
+                    {loading ? "Загрузка..." : "Изменить"}
                 </Button>
+                {currentUser.isDoctor && (
+                    <Link to={"/create-post"}>
+                        <Button
+                            type="button"
+                            gradientDuoTone="purpleToPink"
+                            className="w-full"
+                        >
+                            Создать запись
+                        </Button>
+                    </Link>
+                )}
             </form>
             <div className="text-red-500 flex justify-between mt-5">
                 <span
