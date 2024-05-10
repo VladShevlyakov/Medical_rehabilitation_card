@@ -1,3 +1,4 @@
+// post.model.js
 import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
@@ -21,6 +22,12 @@ const postSchema = new mongoose.Schema(
         category: {
             type: String,
             default: "uncategorized",
+        },
+        startDate: {
+            type: Date,
+        },
+        endDate: {
+            type: Date,
         },
         slug: {
             type: String,
