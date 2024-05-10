@@ -200,12 +200,10 @@ export default function CreatePost() {
                             <option value="uncategorized">
                                 Выбор пройденных процедур
                             </option>
-                            <option value="psychologist">Психотерапия</option>
-                            <option value="physiotherapist">
-                                Физиотерапия
-                            </option>
-                            <option value="massage">Массаж</option>
-                            <option value="lfk">ЛФК</option>
+                            <option value="Психотерапия">Психотерапия</option>
+                            <option value="Физиотерапия">Физиотерапия</option>
+                            <option value="Массаж">Массаж</option>
+                            <option value="ЛФК">ЛФК</option>
                         </Select>
                         <ReactQuill
                             theme="snow"
