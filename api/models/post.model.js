@@ -21,13 +21,16 @@ const postSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            default: "uncategorized",
+            default: "",
         },
         startDate: {
             type: Date,
         },
         endDate: {
             type: Date,
+        },
+        place: {
+            type: String,
         },
         slug: {
             type: String,

@@ -47,9 +47,9 @@ export default function DashPosts() {
                         </Table.Head>
                         {userPosts.map((post) => (
                             <>
-                                <Table.Body className="divide-y">
+                                <Table.Body className="divide-y ">
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell className="flex justify-center">
+                                        <Table.Cell>
                                             {new Date(
                                                 post.updatedAt
                                             ).toLocaleDateString()}
@@ -59,7 +59,7 @@ export default function DashPosts() {
                                                 {post.category}
                                             </Link>
                                         </Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>{post.place}</Table.Cell>
                                         {currentUser.isDoctor && (
                                             <>
                                                 <Table.Cell>
@@ -70,7 +70,7 @@ export default function DashPosts() {
                                                         Удалить
                                                     </span>
                                                 </Table.Cell>
-                                                <Table.Cell>
+                                                <Table.Cell className="">
                                                     <Link
                                                         className="text-teal-500 hover:underline"
                                                         to={`/post/${post._id}`}

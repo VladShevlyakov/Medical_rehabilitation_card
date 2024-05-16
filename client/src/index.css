@@ -9,3 +9,8 @@ body {
 .ql-editor {
     font-size: 1.001rem;
 }
+
+.react-dadata__input {
+    --tw-bg-opacity: 1;
+    background-color: rgb(249 250 251 / var(--tw-bg-opacity));
+}

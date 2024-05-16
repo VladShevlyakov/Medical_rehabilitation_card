@@ -13,7 +13,7 @@ export default function SignUp() {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.username || !formData.email || !formData.password) {
+        if (!formData.snils || !formData.email || !formData.password) {
             return setErrorMessage("Пожалуйста, заполните все поля");
         }
         try {
@@ -67,7 +67,7 @@ export default function SignUp() {
                             <TextInput
                                 type="text"
                                 placeholder="Логин"
-                                id="username"
+                                id="snils"
                                 onChange={handleChange}
                             />
                         </div>

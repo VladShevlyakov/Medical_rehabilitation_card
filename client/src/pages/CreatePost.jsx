@@ -22,8 +22,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import ru from "date-fns/locale/ru";
 import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function CreatePost() {
+    const { currentUser } = useSelector((state) => state.user);
     const [formDataList, setFormDataList] = useState([
         { startDate: null, endDate: null },
     ]);
@@ -120,18 +122,19 @@ export default function CreatePost() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
+            const formDataListWithPlace = formDataList.map((formData) => ({
+                ...formData,
+                place: currentUser.place,
+            }));
             // Отправка данных из всех форм
             const res = await fetch("/api/post/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formDataList),
+                body: JSON.stringify(formDataListWithPlace),
             });
             const data = await res.json();
-            console.log(formDataList);
-            console.log("res", res);
-            console.log("data", data);
 
             if (!res.ok) {
                 setPublishError(data.message);
@@ -197,9 +200,7 @@ export default function CreatePost() {
                                 })
                             }
                         >
-                            <option value="uncategorized">
-                                Выбор пройденных процедур
-                            </option>
+                            <option value="">Выбор пройденных процедур</option>
                             <option value="Психотерапия">Психотерапия</option>
                             <option value="Физиотерапия">Физиотерапия</option>
                             <option value="Массаж">Массаж</option>
@@ -232,6 +233,7 @@ export default function CreatePost() {
                                 })
                             }
                         />
+
                         <div
                             className="flex gap-4 items-center justify-between border-4 border-teal-500
                         border-dotted p-3"

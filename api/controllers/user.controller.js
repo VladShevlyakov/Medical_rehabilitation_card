@@ -20,36 +20,33 @@ export const updateUser = async (req, res, next) => {
         }
         req.body.password = bcryptjs.hashSync(req.body.password, 10);
     }
-    if (req.body.username) {
-        if (req.body.username.length < 7 || req.body.username.length > 20) {
+    if (req.body.snils) {
+        if (req.body.snils.length !== 16) {
             return next(
                 errorHandler(
                     400,
-                    "Имя пользователя должно содержать от 7 до 20 символов"
+                    "Полис пользователя должен содержать ровно 16 символов"
                 )
             );
         }
-        if (req.body.username.includes(" ")) {
+        if (req.body.snils[0] === "0") {
+            return next(
+                errorHandler(400, "Полис пользователя не должен начинаться с 0")
+            );
+        }
+        if (req.body.snils.includes(" ")) {
             return next(
                 errorHandler(
                     400,
-                    "Имя пользователя не должно содержать пробелов"
+                    "Полис пользователя не должен содержать пробелов"
                 )
             );
         }
-        if (req.body.username !== req.body.username.toLowerCase()) {
+        if (!req.body.snils.match(/^\d+$/)) {
             return next(
                 errorHandler(
                     400,
-                    "Имя пользователя должно быть маленькими буквами"
-                )
-            );
-        }
-        if (!req.body.username.match(/^[a-zа-я0-9]+$/u)) {
-            return next(
-                errorHandler(
-                    400,
-                    "Имя пользователя может состоять только из букв и цифр"
+                    "Полис пользователя может состоять только из цифр"
                 )
             );
         }
@@ -59,7 +56,15 @@ export const updateUser = async (req, res, next) => {
             req.params.userId,
             {
                 $set: {
-                    username: req.body.username,
+                    snils: req.body.snils,
+                    surname: req.body.surname,
+                    fullname: req.body.fullname,
+                    patronymic: req.body.patronymic,
+                    dateOfBirth: req.body.dateOfBirth,
+                    disabilityGroup: req.body.disabilityGroup,
+                    registAddress: req.body.registAddress,
+                    gender: req.body.gender,
+                    place: req.body.place,
                     email: req.body.email,
                     profileImg: req.body.profileImg,
                     password: req.body.password,

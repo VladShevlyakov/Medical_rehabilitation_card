@@ -3,24 +3,83 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
+// Проверка существования пользователя по снилсу
+const checkExistingSnils = async (snils) => {
+    const existingUser = await User.findOne({ snils });
+    return existingUser;
+};
+
+// Проверка существования пользователя по почте
+const checkExistingEmail = async (email) => {
+    const existingUser = await User.findOne({ email });
+    return existingUser;
+};
+
 export const signup = async (req, res, next) => {
-    const { username, email, password } = req.body;
+    const { snils, email, password } = req.body;
 
     if (
-        !username ||
+        !snils ||
         !email ||
         !password ||
-        username === "" ||
+        snils === "" ||
         email === "" ||
         password === ""
     ) {
         next(errorHandler(400, "Все поля должны быть заполнены"));
     }
 
+    // Проверка существования пользователя с указанным снилсом
+    const existingSnilsUser = await checkExistingSnils(snils);
+    if (existingSnilsUser) {
+        return next(
+            errorHandler(400, "Пользователь с таким СНИЛС уже существует")
+        );
+    }
+
+    // Проверка существования пользователя с указанной почтой
+    const existingEmailUser = await checkExistingEmail(email);
+    if (existingEmailUser) {
+        return next(
+            errorHandler(400, "Пользователь с такой почтой уже существует")
+        );
+    }
+
+    if (snils) {
+        if (req.body.snils.length !== 16) {
+            return next(
+                errorHandler(
+                    400,
+                    "СНИЛС пользователя должен содержать ровно 16 символов"
+                )
+            );
+        }
+        if (req.body.snils[0] === "0") {
+            return next(
+                errorHandler(400, "СНИЛС пользователя не должен начинаться с 0")
+            );
+        }
+        if (req.body.snils.includes(" ")) {
+            return next(
+                errorHandler(
+                    400,
+                    "СНИЛС пользователя не должен содержать пробелов"
+                )
+            );
+        }
+        if (!req.body.snils.match(/^\d+$/)) {
+            return next(
+                errorHandler(
+                    400,
+                    "СНИЛС пользователя может состоять только из цифр"
+                )
+            );
+        }
+    }
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
     const newUser = new User({
-        username,
+        snils,
         email,
         password: hashedPassword,
     });

@@ -70,11 +70,25 @@ export default function Header() {
                         }
                     >
                         <Dropdown.Header>
-                            <span className="block text-sm">
-                                @{currentUser.username}
-                            </span>
                             <span className="block text-sm font-medium truncate">
-                                {currentUser.email}
+                                {currentUser.surname && currentUser.fullname ? (
+                                    <>
+                                        {currentUser.surname}{" "}
+                                        {currentUser.fullname}
+                                    </>
+                                ) : (
+                                    "Я"
+                                )}
+                            </span>
+                            <span className="block text-sm">
+                                {currentUser.snils ? (
+                                    <>
+                                        {currentUser.snils.slice(0, 4)}{" "}
+                                        {currentUser.snils.slice(4, 8)}{" "}
+                                        {currentUser.snils.slice(8, 12)}{" "}
+                                        {currentUser.snils.slice(12, 16)}
+                                    </>
+                                ) : null}
                             </span>
                         </Dropdown.Header>
                         <Link to={"/dashboard?tab=profile"}>

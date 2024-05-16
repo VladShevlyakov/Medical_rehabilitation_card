@@ -1,6 +1,16 @@
-import { Alert, Button, Modal, TextInput } from "flowbite-react";
+import {
+    Alert,
+    Button,
+    Label,
+    Modal,
+    TextInput,
+    Radio,
+    Select,
+} from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
     getDownloadURL,
     getStorage,
@@ -21,6 +31,9 @@ import {
 } from "../redux/user/userSlice";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import ru from "date-fns/locale/ru";
+import { AddressSuggestions } from "react-dadata";
+import "react-dadata/dist/react-dadata.css";
 
 export default function DashProfile() {
     const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -34,7 +47,10 @@ export default function DashProfile() {
     const [updateUserError, setUpdateUserError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({});
+    const [dateOfBirth, setDateOfBirth] = useState(new Date());
     const filePickerRef = useRef();
+    const [setAddress] = useState("");
+
     const dispatch = useDispatch();
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -44,10 +60,11 @@ export default function DashProfile() {
         }
     };
     useEffect(() => {
+        setDateOfBirth(currentUser.dateOfBirth || null);
         if (imageFile) {
             uploadImage();
         }
-    }, [imageFile]);
+    }, [currentUser, imageFile]);
 
     const uploadImage = async () => {
         //     service firebase.storage {
@@ -94,14 +111,45 @@ export default function DashProfile() {
     };
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value });
+        const { id, value } = e.target;
+        if (id === "dateOfBirth") {
+            handleDateChange(new Date(value));
+        } else if (id === "registAddress") {
+            setAddress(value);
+        } else {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                [id]: value,
+            }));
+        }
+    };
+
+    const handleChangeAddress = (value) => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            registAddress: value,
+        }));
+    };
+
+    const handleDateChange = (date) => {
+        setDateOfBirth(date);
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            dateOfBirth: date,
+        }));
+        localStorage.setItem("dateOfBirth", JSON.stringify(date));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setUpdateUserError(null);
         setUpdateUserSuccess(null);
-        if (Object.keys(formData).length === 0) {
+        if (
+            Object.keys(formData).length === 0 &&
+            dateOfBirth !== null &&
+            formData.dateOfBirth !== null &&
+            formData.dateOfBirth !== dateOfBirth
+        ) {
             setUpdateUserError("Изменения не внесены");
             return;
         }
@@ -117,7 +165,7 @@ export default function DashProfile() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ ...formData, dateOfBirth }),
             });
             const data = await res.json();
 
@@ -221,11 +269,147 @@ export default function DashProfile() {
                 )}
                 <TextInput
                     type="text"
-                    id="username"
-                    placeholder="Имя пользователя"
-                    defaultValue={currentUser.username}
+                    id="surname"
+                    placeholder="Фамилия"
+                    defaultValue={currentUser.surname}
+                    disabled={currentUser.surname ? true : false}
                     onChange={handleChange}
                 />
+                <TextInput
+                    type="text"
+                    id="fullname"
+                    placeholder="Имя"
+                    defaultValue={currentUser.fullname}
+                    disabled={currentUser.fullname ? true : false}
+                    onChange={handleChange}
+                />
+                <TextInput
+                    type="text"
+                    id="patronymic"
+                    placeholder="Отчество"
+                    defaultValue={currentUser.patronymic}
+                    disabled={currentUser.patronymic ? true : false}
+                    onChange={handleChange}
+                />
+                <div className="flex gap-3 items-center">
+                    <Label className="text-sm text-gray-600">Пол:</Label>
+                    {currentUser.gender !== "Мужской" &&
+                    currentUser.gender !== "Женский" ? (
+                        <>
+                            <div className="flex items-center gap-1">
+                                <Radio
+                                    id="gender"
+                                    name="gender"
+                                    value="Мужской"
+                                    onChange={handleChange}
+                                />
+                                <Label>Мужской</Label>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Radio
+                                    id="gender"
+                                    name="gender"
+                                    value="Женский"
+                                    onChange={handleChange}
+                                />
+                                <Label>Женский</Label>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="text-sm text-gray-600">
+                            {`${currentUser.gender}`}
+                        </div>
+                    )}
+                </div>
+                <div className="flex flex-col ">
+                    <Label className="text-sm text-gray-600">
+                        Дата Рождения
+                    </Label>
+                    <DatePicker
+                        id="dateOfBirth"
+                        selected={dateOfBirth}
+                        disabled={currentUser.dateOfBirth ? true : false}
+                        onChange={handleDateChange}
+                        dateFormat="dd.MM.yyyy"
+                        locale={ru}
+                        className="disabled:cursor-not-allowed disabled:opacity-50 rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
+                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
+                    />
+                </div>
+                {!currentUser.isDoctor && (
+                    <div>
+                        <Label className="text-sm text-gray-600">
+                            Группа инвалидности:
+                        </Label>
+                        <Select
+                            id="disabilityGroup"
+                            value={
+                                formData.disabilityGroup ||
+                                currentUser.disabilityGroup
+                            }
+                            onChange={handleChange}
+                            disabled={
+                                currentUser.disabilityGroup ? true : false
+                            }
+                        >
+                            <option value="">
+                                Выберите группу инвалидности
+                            </option>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="Ребенок-инвалид">
+                                Ребенок-инвалид
+                            </option>
+                        </Select>
+                    </div>
+                )}
+                <div>
+                    <Label className="text-sm text-gray-600">Полис ОМС</Label>
+                    <TextInput
+                        type="number"
+                        id="snils"
+                        placeholder="Полис ОМС"
+                        defaultValue={currentUser.snils}
+                        disabled={currentUser.snils ? true : false}
+                        onChange={handleChange}
+                    />
+                </div>
+                {!currentUser.isDoctor && (
+                    <div>
+                        <Label className="text-sm text-gray-600">
+                            Адрес регистрации
+                        </Label>
+                        <AddressSuggestions
+                            className="bg-gray-50"
+                            id="registAddress"
+                            token="c991cde6f33cd14199b9a8feb3ce230471c47a7f"
+                            value={currentUser.registAddress}
+                            onChange={handleChangeAddress}
+                            inputProps={{
+                                disabled: !!currentUser.registAddress,
+                                placeholder: "Введите адрес",
+                                className:
+                                    "block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg",
+                            }}
+                        />
+                    </div>
+                )}
+                {currentUser.isDoctor && (
+                    <div>
+                        <Label className="text-sm text-gray-600">
+                            Место работы
+                        </Label>
+                        <TextInput
+                            type="text"
+                            id="place"
+                            placeholder="Санаторий №10"
+                            disabled={currentUser.place ? true : false}
+                            defaultValue={currentUser.place}
+                            onChange={handleChange}
+                        />
+                    </div>
+                )}
                 <TextInput
                     type="email"
                     id="email"
@@ -309,7 +493,7 @@ export default function DashProfile() {
                                 color="gray"
                                 onClick={() => setShowModal(false)}
                             >
-                                Нет, выйти
+                                Нет
                             </Button>
                         </div>
                     </div>
