@@ -1,6 +1,7 @@
 import express from "express";
 import {
     deleteUser,
+    searchPolis,
     signout,
     test,
     updateUser,
@@ -12,6 +13,7 @@ const router = express.Router();
 router.get("/test", test);
 router.put("/update/:userId", verifyToken, updateUser);
 router.delete("/delete/:userId", verifyToken, deleteUser);
+router.post("/search", verifyToken, searchPolis);
 router.post("/signout", signout);
 
 export default router;

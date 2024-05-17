@@ -29,8 +29,8 @@ import {
     deleteUserFailure,
     signoutSuccess,
 } from "../redux/user/userSlice";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { HiOutlineExclamationCircle, HiOutlineSearch } from "react-icons/hi";
+import { Link, useNavigate } from "react-router-dom";
 import ru from "date-fns/locale/ru";
 import { AddressSuggestions } from "react-dadata";
 import "react-dadata/dist/react-dadata.css";
@@ -46,11 +46,13 @@ export default function DashProfile() {
     const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
     const [updateUserError, setUpdateUserError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showModalSearch, setShowModalSearch] = useState(false);
+    const [snils, setSnils] = useState("");
     const [formData, setFormData] = useState({});
     const [dateOfBirth, setDateOfBirth] = useState(new Date());
     const filePickerRef = useRef();
     const [setAddress] = useState("");
-
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -214,6 +216,29 @@ export default function DashProfile() {
             }
         } catch (error) {
             console.log(error.message);
+        }
+    };
+
+    const handleSnilsSubmit = async () => {
+        try {
+            const res = await fetch("/api/user/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ snils }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                console.log("Пользователь найден:", data); // Логирование данных
+                navigate("/create-post", { state: { userId: data._id } });
+                console.log(data._id);
+            } else {
+                alert("Пользователь с таким СНИЛС не найден");
+            }
+        } catch (error) {
+            console.error("Ошибка при получении пользователя по СНИЛС:", error);
         }
     };
 
@@ -432,15 +457,14 @@ export default function DashProfile() {
                     {loading ? "Загрузка..." : "Изменить"}
                 </Button>
                 {currentUser.isDoctor && (
-                    <Link to={"/create-post"}>
-                        <Button
-                            type="button"
-                            gradientDuoTone="purpleToPink"
-                            className="w-full"
-                        >
-                            Создать запись
-                        </Button>
-                    </Link>
+                    <Button
+                        type="button"
+                        gradientDuoTone="purpleToPink"
+                        className="w-full"
+                        onClick={() => setShowModalSearch(true)}
+                    >
+                        Создать запись
+                    </Button>
                 )}
             </form>
             <div className="text-red-500 flex justify-between mt-5">
@@ -496,6 +520,36 @@ export default function DashProfile() {
                                 Нет
                             </Button>
                         </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            <Modal
+                show={showModalSearch}
+                onClose={() => setShowModalSearch(false)}
+                popup
+                size="md"
+            >
+                <Modal.Header>
+                    <div className="flex ">Введите Полис пациента</div>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="text-center mb-5">
+                        <HiOutlineSearch
+                            className="h-14 w-14 text-gray-400 dark:text-gray-200
+                        mb-4 mx-auto"
+                        />
+                        <TextInput
+                            id="snils"
+                            type="text"
+                            value={snils}
+                            placeholder="1234-5678-9101-1121"
+                            onChange={(e) => setSnils(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex justify-center gap-10">
+                        <Button onClick={handleSnilsSubmit} color="gray">
+                            Поиск
+                        </Button>
                     </div>
                 </Modal.Body>
             </Modal>

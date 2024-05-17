@@ -79,6 +79,22 @@ export const updateUser = async (req, res, next) => {
     }
 };
 
+export const searchPolis = async (req, res, next) => {
+    const { snils } = req.body;
+    try {
+        const validUser = await User.findOne({ snils });
+        if (!validUser) {
+            return next(
+                errorHandler(404, "Пользователь с таким полисом не найден")
+            );
+        }
+        const { password, ...rest } = validUser._doc;
+        res.status(200).json(rest);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const deleteUser = async (req, res, next) => {
     if (req.user.id !== req.params.userId) {
         return next(
