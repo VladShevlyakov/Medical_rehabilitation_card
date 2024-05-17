@@ -21,10 +21,12 @@ import "react-quill/dist/quill.snow.css";
 import "react-datepicker/dist/react-datepicker.css";
 import ru from "date-fns/locale/ru";
 import { app } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function CreatePost() {
+    const location = useLocation();
+    const { userId } = location.state || {};
     const { currentUser } = useSelector((state) => state.user);
     const [formDataList, setFormDataList] = useState([
         { startDate: null, endDate: null },
@@ -132,7 +134,10 @@ export default function CreatePost() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formDataListWithPlace),
+                body: JSON.stringify({
+                    userId, // Передаем userId в тело запроса
+                    posts: formDataListWithPlace,
+                }),
             });
             const data = await res.json();
 
@@ -245,7 +250,7 @@ export default function CreatePost() {
                                     const file = e.target.files[0];
                                     setFormDataList((prevFormDataList) => {
                                         const updated = [...prevFormDataList];
-                                        updated[index].file = file; // Сохраняем файл в состояние формы
+                                        updated[index].file = file;
                                         return updated;
                                     });
                                 }}
@@ -255,7 +260,7 @@ export default function CreatePost() {
                                 gradientDuoTone="purpleToBlue"
                                 size="sm"
                                 outline
-                                onClick={() => handleUploadFile(index)} // Передаем индекс формы
+                                onClick={() => handleUploadFile(index)}
                                 disabled={fileUploadProgress[index]}
                             >
                                 {fileUploadProgress[index] ? (

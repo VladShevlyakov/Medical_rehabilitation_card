@@ -1,4 +1,3 @@
-// post.controller.js
 import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -23,8 +22,8 @@ export const create = async (req, res, next) => {
     }
 
     try {
-        const userId = req.user.id;
-        const postData = formatPostData(req.body, userId);
+        const userId = req.body.userId; // Получение userId из тела запроса
+        const postData = formatPostData(req.body.posts, userId); // Предполагается, что в req.body.posts массив данных постов
         const savedPosts = await Post.create(postData);
         res.status(201).json(savedPosts);
     } catch (error) {
