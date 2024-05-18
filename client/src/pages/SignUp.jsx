@@ -8,14 +8,37 @@ export default function SignUp() {
     const [errorMessage, setErrorMessage] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+
+    const formatSnils = (value) => {
+        // Удаляем все символы, кроме цифр
+        const cleaned = value.replace(/\D+/g, "");
+        // Разбиваем строку на части по 4 символа
+        const match = cleaned.match(/.{1,4}/g);
+        // Объединяем части с пробелами
+        return match ? match.join(" ") : "";
     };
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        let formattedValue = value;
+
+        if (id === "snils") {
+            formattedValue = formatSnils(value);
+        }
+
+        setFormData({ ...formData, [id]: formattedValue });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.snils || !formData.email || !formData.password) {
             return setErrorMessage("Пожалуйста, заполните все поля");
         }
+        // Удаляем пробелы из Полиса перед отправкой на сервер
+        const formDataNew = {
+            ...formData,
+            snils: formData.snils.replace(/\s+/g, ""),
+        };
         try {
             setLoading(true);
             setErrorMessage(null);
@@ -23,7 +46,7 @@ export default function SignUp() {
             const res = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formDataNew),
             });
             const data = await res.json();
             if (data.success === false) {
@@ -53,7 +76,7 @@ export default function SignUp() {
                     </Link>
                     <p className="text-sm mt-5">
                         Это демо-приложение. Вы можете зарегистрироваться с
-                        помощью номера снилса и пароля или через госуслуги.
+                        помощью номера Полиса ЕМС и пароля или через google.
                     </p>
                 </div>
                 {/* правая часть */}
@@ -63,11 +86,12 @@ export default function SignUp() {
                         onSubmit={handleSubmit}
                     >
                         <div>
-                            <Label value="Ваш логин" />
+                            <Label value="Ваш полис" />
                             <TextInput
                                 type="text"
-                                placeholder="Логин"
+                                placeholder="1234 1234 1234 1234"
                                 id="snils"
+                                value={formData.snils || ""}
                                 onChange={handleChange}
                             />
                         </div>

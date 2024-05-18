@@ -29,11 +29,11 @@ export const signup = async (req, res, next) => {
         next(errorHandler(400, "Все поля должны быть заполнены"));
     }
 
-    // Проверка существования пользователя с указанным снилсом
+    // Проверка существования пользователя с указанным полисом
     const existingSnilsUser = await checkExistingSnils(snils);
     if (existingSnilsUser) {
         return next(
-            errorHandler(400, "Пользователь с таким СНИЛС уже существует")
+            errorHandler(400, "Пользователь с таким Полисом уже существует")
         );
     }
 
@@ -50,28 +50,20 @@ export const signup = async (req, res, next) => {
             return next(
                 errorHandler(
                     400,
-                    "СНИЛС пользователя должен содержать ровно 16 символов"
+                    "Полис пользователя должен содержать ровно 16 символов"
                 )
             );
         }
         if (req.body.snils[0] === "0") {
             return next(
-                errorHandler(400, "СНИЛС пользователя не должен начинаться с 0")
-            );
-        }
-        if (req.body.snils.includes(" ")) {
-            return next(
-                errorHandler(
-                    400,
-                    "СНИЛС пользователя не должен содержать пробелов"
-                )
+                errorHandler(400, "Полис пользователя не может начинаться с 0")
             );
         }
         if (!req.body.snils.match(/^\d+$/)) {
             return next(
                 errorHandler(
                     400,
-                    "СНИЛС пользователя может состоять только из цифр"
+                    "Полис пользователя может состоять только из цифр"
                 )
             );
         }

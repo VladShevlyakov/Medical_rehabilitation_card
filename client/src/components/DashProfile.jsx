@@ -45,6 +45,7 @@ export default function DashProfile() {
     const [imageFileUploading, setImageFileUploading] = useState(false);
     const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
     const [updateUserError, setUpdateUserError] = useState(null);
+    const [searchUserError, setSearchUserError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showModalSearch, setShowModalSearch] = useState(false);
     const [snils, setSnils] = useState("");
@@ -219,26 +220,35 @@ export default function DashProfile() {
         }
     };
 
+    const formatSnils = (value) => {
+        // Удаляем все символы, кроме цифр
+        const cleaned = value.replace(/\D+/g, "");
+        // Разбиваем строку на части по 4 символа
+        const match = cleaned.match(/.{1,4}/g);
+        // Объединяем части с пробелами
+        return match ? match.join(" ") : "";
+    };
+
     const handleSnilsSubmit = async () => {
+        setSearchUserError(null);
         try {
+            const cleanedSnils = snils.replace(/\s+/g, "");
             const res = await fetch("/api/user/search", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ snils }),
+                body: JSON.stringify({ snils: cleanedSnils }),
             });
             const data = await res.json();
 
             if (res.ok) {
-                console.log("Пользователь найден:", data); // Логирование данных
                 navigate("/create-post", { state: { userId: data._id } });
-                console.log(data._id);
             } else {
-                alert("Пользователь с таким СНИЛС не найден");
+                setSearchUserError("Пользователь с таким полисом не найден");
             }
         } catch (error) {
-            console.error("Ошибка при получении пользователя по СНИЛС:", error);
+            console.log(error.message);
         }
     };
 
@@ -354,6 +364,7 @@ export default function DashProfile() {
                         id="dateOfBirth"
                         selected={dateOfBirth}
                         disabled={currentUser.dateOfBirth ? true : false}
+                        placeholderText="Дата Рождения"
                         onChange={handleDateChange}
                         dateFormat="dd.MM.yyyy"
                         locale={ru}
@@ -542,8 +553,10 @@ export default function DashProfile() {
                             id="snils"
                             type="text"
                             value={snils}
-                            placeholder="1234-5678-9101-1121"
-                            onChange={(e) => setSnils(e.target.value)}
+                            placeholder="1234 1234 1234 1234"
+                            onChange={(e) =>
+                                setSnils(formatSnils(e.target.value))
+                            }
                         />
                     </div>
                     <div className="flex justify-center gap-10">
@@ -551,6 +564,11 @@ export default function DashProfile() {
                             Поиск
                         </Button>
                     </div>
+                    {searchUserError && (
+                        <Alert color="failure" className="mt-5">
+                            {searchUserError}
+                        </Alert>
+                    )}
                 </Modal.Body>
             </Modal>
         </div>
