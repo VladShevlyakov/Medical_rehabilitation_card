@@ -23,12 +23,11 @@ import ru from "date-fns/locale/ru";
 import { app } from "../firebase";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import DashSidebar from "../components/DashSidebar";
+import DashInfoPatient from "../components/DashInfoPatient";
 
 export default function CreatePost() {
     const location = useLocation();
     const userData = location.state?.userData || {};
-    const [formData, setFormData] = useState({});
     const { currentUser } = useSelector((state) => state.user);
     const [formDataList, setFormDataList] = useState([
         { startDate: null, endDate: null },
@@ -41,20 +40,6 @@ export default function CreatePost() {
     );
     const [publishError, setPublishError] = useState(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (userData) {
-            setFormData({
-                ...formData,
-                surname: userData.surname,
-                fullname: userData.fullname,
-                patronymic: userData.patronymic,
-                gender: userData.gender,
-                dateOfBirth: userData.dateOfBirth,
-                snils: userData.snils,
-            });
-        }
-    }, [userData]);
 
     const handleUploadFile = async (index) => {
         try {
@@ -198,56 +183,12 @@ export default function CreatePost() {
         });
     };
 
-    const birthDate = new Date(userData.dateOfBirth);
-    const currentDate = new Date();
-
-    // Рассчитываем разницу между текущей датой и датой рождения в миллисекундах
-    const differenceMs = currentDate - birthDate;
-
-    // Переводим миллисекунды в годы
-    const age = Math.floor(differenceMs / (1000 * 60 * 60 * 24 * 365));
-
-    // Форматируем дату рождения в формат Д.М.Г.
-    const day = birthDate.getDate();
-    const month = (birthDate.getMonth() + 1).toString().padStart(2, "0"); // Добавляем ведущий ноль для месяца
-    const year = birthDate.getFullYear();
-
-    // Форматируем дату рождения в формат Д.М.Г.
-    const formattedBirthDate = `${day}.${month}.${year}`;
-
     return (
-        <div className="flex flex-row gap-7 p-3 mx-auto min-h-screen">
-            <div className="max-w-60 my-12 p-4 bg-gray-100 rounded-lg">
-                {userData && (
-                    <div className="mb-5">
-                        <h2 className="text-center text-xl font-semibold mb-4">
-                            Информация о пациенте:
-                        </h2>
-                        <p>
-                            <strong>Фамилия:</strong> {userData.surname}
-                        </p>
-                        <p>
-                            <strong>Имя:</strong> {userData.fullname}
-                        </p>
-                        <p>
-                            <strong>Отчество:</strong> {userData.patronymic}
-                        </p>
-                        <p>
-                            <strong>Пол:</strong> {userData.gender}
-                        </p>
-                        <p>
-                            <strong>Дата Рождения:</strong> {formattedBirthDate}
-                        </p>
-                        <p>
-                            <strong>Возраст:</strong> {age} лет
-                        </p>
-                        <p>
-                            <strong>Полис ОМС:</strong> {userData.snils}
-                        </p>
-                    </div>
-                )}
+        <div className=" flex flex-col md:flex-row">
+            <div className="min-h-screen">
+                <DashInfoPatient />
             </div>
-            <div className="w-3/4 p-4 max-w-3xl">
+            <div className="p-3 min-w-[768px] max-w-3xl mx-auto min-h-screen">
                 <h1 className="text-center text-3xl my-7 font-semibold">
                     Создание записи
                 </h1>
