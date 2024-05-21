@@ -6,7 +6,7 @@ import {
     Select,
     TextInput,
 } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import ReactQuill from "react-quill";
 import {
@@ -23,10 +23,12 @@ import ru from "date-fns/locale/ru";
 import { app } from "../firebase";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import DashSidebar from "../components/DashSidebar";
 
 export default function CreatePost() {
     const location = useLocation();
-    const { userId } = location.state || {};
+    const userData = location.state?.userData || {};
+    const [formData, setFormData] = useState({});
     const { currentUser } = useSelector((state) => state.user);
     const [formDataList, setFormDataList] = useState([
         { startDate: null, endDate: null },
@@ -39,6 +41,20 @@ export default function CreatePost() {
     );
     const [publishError, setPublishError] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (userData) {
+            setFormData({
+                ...formData,
+                surname: userData.surname,
+                fullname: userData.fullname,
+                patronymic: userData.patronymic,
+                gender: userData.gender,
+                dateOfBirth: userData.dateOfBirth,
+                snils: userData.snils,
+            });
+        }
+    }, [userData]);
 
     const handleUploadFile = async (index) => {
         try {
@@ -135,7 +151,7 @@ export default function CreatePost() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    userId, // Передаем userId в тело запроса
+                    userId: userData, // Передаем userId в тело запроса
                     posts: formDataListWithPlace,
                 }),
             });
@@ -182,174 +198,247 @@ export default function CreatePost() {
         });
     };
 
-    return (
-        <div className="p-3 max-w-3xl mx-auto min-h-screen">
-            <h1 className="text-center text-3xl my-7 font-semibold">
-                Создание записи
-            </h1>
-            <form className="flex flex-col gap-4" onSubmit={handleFormSubmit}>
-                {formDataList.map((formData, index) => (
-                    <div
-                        key={index}
-                        className={`flex flex-col gap-4 ${
-                            index > 0 ? "mt-8" : ""
-                        }`}
-                    >
-                        <Select
-                            onChange={(e) =>
-                                setFormDataList((prevFormDataList) => {
-                                    const updatedList = [...prevFormDataList];
-                                    updatedList[index].category =
-                                        e.target.value;
-                                    return updatedList;
-                                })
-                            }
-                        >
-                            <option value="">Выбор пройденных процедур</option>
-                            <option value="Психотерапия">Психотерапия</option>
-                            <option value="Физиотерапия">Физиотерапия</option>
-                            <option value="Массаж">Массаж</option>
-                            <option value="ЛФК">ЛФК</option>
-                        </Select>
-                        <ReactQuill
-                            theme="snow"
-                            required
-                            id={`content-${index}`}
-                            placeholder="Отметки..."
-                            className="h-72 mb-12"
-                            onChange={(value) =>
-                                setFormDataList((prevFormDataList) => {
-                                    const updatedList = [...prevFormDataList];
-                                    updatedList[index].content = value;
-                                    return updatedList;
-                                })
-                            }
-                        />
-                        <TextInput
-                            type="text"
-                            placeholder="Рекомендации"
-                            required
-                            id={`title-${index}`}
-                            onChange={(e) =>
-                                setFormDataList((prevFormDataList) => {
-                                    const updatedList = [...prevFormDataList];
-                                    updatedList[index].title = e.target.value;
-                                    return updatedList;
-                                })
-                            }
-                        />
+    const birthDate = new Date(userData.dateOfBirth);
+    const currentDate = new Date();
 
-                        <div
-                            className="flex gap-4 items-center justify-between border-4 border-teal-500
-                        border-dotted p-3"
-                        >
-                            <FileInput
-                                type="file"
-                                accept="*"
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    setFormDataList((prevFormDataList) => {
-                                        const updated = [...prevFormDataList];
-                                        updated[index].file = file;
-                                        return updated;
-                                    });
-                                }}
-                            />
-                            <Button
-                                type="button"
-                                gradientDuoTone="purpleToBlue"
-                                size="sm"
-                                outline
-                                onClick={() => handleUploadFile(index)}
-                                disabled={fileUploadProgress[index]}
-                            >
-                                {fileUploadProgress[index] ? (
-                                    <div className="w-16 h-16">
-                                        <CircularProgressbar
-                                            value={fileUploadProgress[index]}
-                                            text={`${
-                                                fileUploadProgress[index] || 0
-                                            }%`}
-                                        />
-                                    </div>
-                                ) : (
-                                    "Загрузить файл"
-                                )}
-                            </Button>
-                        </div>
-                        {fileUploadError[index] && (
-                            <Alert color="failure">
-                                {fileUploadError[index]}
-                            </Alert>
-                        )}
-                        {index === formDataList.length - 1 && (
-                            <>
-                                <div className="flex gap-4 flex-col sm:flex-row">
-                                    <div className="flex flex-col">
-                                        <Label className="text-sm text-gray-600">
-                                            Начальная дата
-                                        </Label>
-                                        <DatePicker
-                                            selected={formData.startDate}
-                                            onChange={(date) =>
-                                                handleStartDateChange(
-                                                    date,
-                                                    index
-                                                )
-                                            }
-                                            selectsStart
-                                            startDate={formData.startDate}
-                                            endDate={formData.endDate}
-                                            dateFormat="dd.MM.yyyy"
-                                            locale={ru}
-                                            className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
-                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <Label className="text-sm text-gray-600">
-                                            Конечная дата
-                                        </Label>
-                                        <DatePicker
-                                            selected={formData.endDate}
-                                            onChange={(date) =>
-                                                handleEndDateChange(date, index)
-                                            }
-                                            selectsEnd
-                                            startDate={formData.startDate}
-                                            endDate={formData.endDate}
-                                            minDate={formData.startDate}
-                                            dateFormat="dd.MM.yyyy"
-                                            locale={ru}
-                                            className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
-                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
+    // Рассчитываем разницу между текущей датой и датой рождения в миллисекундах
+    const differenceMs = currentDate - birthDate;
+
+    // Переводим миллисекунды в годы
+    const age = Math.floor(differenceMs / (1000 * 60 * 60 * 24 * 365));
+
+    // Форматируем дату рождения в формат Д.М.Г.
+    const day = birthDate.getDate();
+    const month = (birthDate.getMonth() + 1).toString().padStart(2, "0"); // Добавляем ведущий ноль для месяца
+    const year = birthDate.getFullYear();
+
+    // Форматируем дату рождения в формат Д.М.Г.
+    const formattedBirthDate = `${day}.${month}.${year}`;
+
+    return (
+        <div className="flex flex-row gap-7 p-3 mx-auto min-h-screen">
+            <div className="max-w-60 my-12 p-4 bg-gray-100 rounded-lg">
+                {userData && (
+                    <div className="mb-5">
+                        <h2 className="text-center text-xl font-semibold mb-4">
+                            Информация о пациенте:
+                        </h2>
+                        <p>
+                            <strong>Фамилия:</strong> {userData.surname}
+                        </p>
+                        <p>
+                            <strong>Имя:</strong> {userData.fullname}
+                        </p>
+                        <p>
+                            <strong>Отчество:</strong> {userData.patronymic}
+                        </p>
+                        <p>
+                            <strong>Пол:</strong> {userData.gender}
+                        </p>
+                        <p>
+                            <strong>Дата Рождения:</strong> {formattedBirthDate}
+                        </p>
+                        <p>
+                            <strong>Возраст:</strong> {age} лет
+                        </p>
+                        <p>
+                            <strong>Полис ОМС:</strong> {userData.snils}
+                        </p>
                     </div>
-                ))}
-                <Button
-                    gradientDuoTone="purpleToBlue"
-                    outline
-                    onClick={addProcedureForm}
-                >
-                    Добавить процедуру
-                </Button>
-                <Button
-                    type="submit"
-                    gradientDuoTone="purpleToPink"
-                    className="my-4"
-                >
-                    Сохранить
-                </Button>
-                {publishError && (
-                    <Alert className="mt-5" color="failure">
-                        {publishError}
-                    </Alert>
                 )}
-            </form>
+            </div>
+            <div className="w-3/4 p-4 max-w-3xl">
+                <h1 className="text-center text-3xl my-7 font-semibold">
+                    Создание записи
+                </h1>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={handleFormSubmit}
+                >
+                    {formDataList.map((formData, index) => (
+                        <div
+                            key={index}
+                            className={`flex flex-col gap-4 ${
+                                index > 0 ? "mt-8" : ""
+                            }`}
+                        >
+                            <Select
+                                onChange={(e) =>
+                                    setFormDataList((prevFormDataList) => {
+                                        const updatedList = [
+                                            ...prevFormDataList,
+                                        ];
+                                        updatedList[index].category =
+                                            e.target.value;
+                                        return updatedList;
+                                    })
+                                }
+                            >
+                                <option value="">
+                                    Выбор пройденных процедур
+                                </option>
+                                <option value="Психотерапия">
+                                    Психотерапия
+                                </option>
+                                <option value="Физиотерапия">
+                                    Физиотерапия
+                                </option>
+                                <option value="Массаж">Массаж</option>
+                                <option value="ЛФК">ЛФК</option>
+                            </Select>
+                            <ReactQuill
+                                theme="snow"
+                                required
+                                id={`content-${index}`}
+                                placeholder="Отметки..."
+                                className="h-72 mb-12"
+                                onChange={(value) =>
+                                    setFormDataList((prevFormDataList) => {
+                                        const updatedList = [
+                                            ...prevFormDataList,
+                                        ];
+                                        updatedList[index].content = value;
+                                        return updatedList;
+                                    })
+                                }
+                            />
+                            <TextInput
+                                type="text"
+                                placeholder="Рекомендации"
+                                required
+                                id={`title-${index}`}
+                                onChange={(e) =>
+                                    setFormDataList((prevFormDataList) => {
+                                        const updatedList = [
+                                            ...prevFormDataList,
+                                        ];
+                                        updatedList[index].title =
+                                            e.target.value;
+                                        return updatedList;
+                                    })
+                                }
+                            />
+
+                            <div
+                                className="flex gap-4 items-center justify-between border-4 border-teal-500
+                        border-dotted p-3"
+                            >
+                                <FileInput
+                                    type="file"
+                                    accept="*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setFormDataList((prevFormDataList) => {
+                                            const updated = [
+                                                ...prevFormDataList,
+                                            ];
+                                            updated[index].file = file;
+                                            return updated;
+                                        });
+                                    }}
+                                />
+                                <Button
+                                    type="button"
+                                    gradientDuoTone="purpleToBlue"
+                                    size="sm"
+                                    outline
+                                    onClick={() => handleUploadFile(index)}
+                                    disabled={fileUploadProgress[index]}
+                                >
+                                    {fileUploadProgress[index] ? (
+                                        <div className="w-16 h-16">
+                                            <CircularProgressbar
+                                                value={
+                                                    fileUploadProgress[index]
+                                                }
+                                                text={`${
+                                                    fileUploadProgress[index] ||
+                                                    0
+                                                }%`}
+                                            />
+                                        </div>
+                                    ) : (
+                                        "Загрузить файл"
+                                    )}
+                                </Button>
+                            </div>
+                            {fileUploadError[index] && (
+                                <Alert color="failure">
+                                    {fileUploadError[index]}
+                                </Alert>
+                            )}
+                            {index === formDataList.length - 1 && (
+                                <>
+                                    <div className="flex gap-4 flex-col sm:flex-row">
+                                        <div className="flex flex-col">
+                                            <Label className="text-sm text-gray-600">
+                                                Начальная дата
+                                            </Label>
+                                            <DatePicker
+                                                selected={formData.startDate}
+                                                onChange={(date) =>
+                                                    handleStartDateChange(
+                                                        date,
+                                                        index
+                                                    )
+                                                }
+                                                selectsStart
+                                                startDate={formData.startDate}
+                                                endDate={formData.endDate}
+                                                dateFormat="dd.MM.yyyy"
+                                                locale={ru}
+                                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
+                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <Label className="text-sm text-gray-600">
+                                                Конечная дата
+                                            </Label>
+                                            <DatePicker
+                                                selected={formData.endDate}
+                                                onChange={(date) =>
+                                                    handleEndDateChange(
+                                                        date,
+                                                        index
+                                                    )
+                                                }
+                                                selectsEnd
+                                                startDate={formData.startDate}
+                                                endDate={formData.endDate}
+                                                minDate={formData.startDate}
+                                                dateFormat="dd.MM.yyyy"
+                                                locale={ru}
+                                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
+                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                    <Button
+                        gradientDuoTone="purpleToBlue"
+                        outline
+                        onClick={addProcedureForm}
+                    >
+                        Добавить процедуру
+                    </Button>
+                    <Button
+                        type="submit"
+                        gradientDuoTone="purpleToPink"
+                        className="my-4"
+                    >
+                        Сохранить
+                    </Button>
+                    {publishError && (
+                        <Alert className="mt-5" color="failure">
+                            {publishError}
+                        </Alert>
+                    )}
+                </form>
+            </div>
         </div>
     );
 }

@@ -30,7 +30,7 @@ import {
     signoutSuccess,
 } from "../redux/user/userSlice";
 import { HiOutlineExclamationCircle, HiOutlineSearch } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ru from "date-fns/locale/ru";
 import { AddressSuggestions } from "react-dadata";
 import "react-dadata/dist/react-dadata.css";
@@ -243,7 +243,8 @@ export default function DashProfile() {
             const data = await res.json();
 
             if (res.ok) {
-                navigate("/create-post", { state: { userId: data._id } });
+                navigate("/create-post", { state: { userData: data } });
+                console.log(data);
             } else {
                 setSearchUserError("Пользователь с таким полисом не найден");
             }

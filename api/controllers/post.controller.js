@@ -50,3 +50,15 @@ export const getposts = async (req, res, next) => {
         next(error);
     }
 };
+
+export const deletepost = async (req, res, next) => {
+    if (!req.user.isDoctor || req.user.id !== req.params.userId) {
+        return next(errorHandler(403, "Вы не можете удалить этот пост"));
+    }
+    try {
+        await Post.findByIdAndDelete(req.params.postId);
+        res.status(200).json("Пост удален");
+    } catch (error) {
+        next(error);
+    }
+};
