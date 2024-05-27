@@ -30,7 +30,7 @@ export default function CreatePost() {
     const userData = location.state?.userData || {};
     const { currentUser } = useSelector((state) => state.user);
     const [formDataList, setFormDataList] = useState([
-        { startDate: null, endDate: null },
+        { category: "", content: "", title: "", image: "", file: "" },
     ]);
     const [fileUploadProgress, setFileUploadProgress] = useState(
         Array(formDataList.length).fill(null)
@@ -38,6 +38,8 @@ export default function CreatePost() {
     const [fileUploadError, setFileUploadError] = useState(
         Array(formDataList.length).fill(null)
     );
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [publishError, setPublishError] = useState(null);
     const navigate = useNavigate();
 
@@ -125,19 +127,30 @@ export default function CreatePost() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
-            const formDataListWithPlace = formDataList.map((formData) => ({
-                ...formData,
-                place: currentUser.place,
+            // Формируем список процедур
+            const procedures = formDataList.map((formData) => ({
+                category: formData.category,
+                content: formData.content,
+                title: formData.title,
+                image: formData.image,
             }));
-            // Отправка данных из всех форм
+
             const res = await fetch("/api/post/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    userId: userData, // Передаем userId в тело запроса
-                    posts: formDataListWithPlace,
+                    userId: userData._id, // Передаем userId пациента
+                    author: {
+                        // Информация о пользователе, создающем запись
+                        fullname: currentUser.fullname,
+                        surname: currentUser.surname,
+                    },
+                    place: currentUser.place,
+                    startDate,
+                    endDate,
+                    procedures,
                 }),
             });
             const data = await res.json();
@@ -158,29 +171,13 @@ export default function CreatePost() {
     const addProcedureForm = () => {
         setFormDataList((prevFormDataList) => [
             ...prevFormDataList,
-            { startDate: null, endDate: null },
+            { category: "", content: "", title: "", image: "", file: "" },
         ]);
         setFileUploadProgress((prevProgressList) => [
             ...prevProgressList,
             null,
         ]);
         setFileUploadError((prevErrors) => [...prevErrors, null]);
-    };
-
-    const handleStartDateChange = (date, index) => {
-        setFormDataList((prevFormDataList) => {
-            const updatedList = [...prevFormDataList];
-            updatedList[index].startDate = date;
-            return updatedList;
-        });
-    };
-
-    const handleEndDateChange = (date, index) => {
-        setFormDataList((prevFormDataList) => {
-            const updatedList = [...prevFormDataList];
-            updatedList[index].endDate = date;
-            return updatedList;
-        });
     };
 
     return (
@@ -308,55 +305,6 @@ export default function CreatePost() {
                                     {fileUploadError[index]}
                                 </Alert>
                             )}
-                            {index === formDataList.length - 1 && (
-                                <>
-                                    <div className="flex gap-4 flex-col sm:flex-row">
-                                        <div className="flex flex-col">
-                                            <Label className="text-sm text-gray-600">
-                                                Начальная дата
-                                            </Label>
-                                            <DatePicker
-                                                selected={formData.startDate}
-                                                onChange={(date) =>
-                                                    handleStartDateChange(
-                                                        date,
-                                                        index
-                                                    )
-                                                }
-                                                selectsStart
-                                                startDate={formData.startDate}
-                                                endDate={formData.endDate}
-                                                dateFormat="dd.MM.yyyy"
-                                                locale={ru}
-                                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
-                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <Label className="text-sm text-gray-600">
-                                                Конечная дата
-                                            </Label>
-                                            <DatePicker
-                                                selected={formData.endDate}
-                                                onChange={(date) =>
-                                                    handleEndDateChange(
-                                                        date,
-                                                        index
-                                                    )
-                                                }
-                                                selectsEnd
-                                                startDate={formData.startDate}
-                                                endDate={formData.endDate}
-                                                minDate={formData.startDate}
-                                                dateFormat="dd.MM.yyyy"
-                                                locale={ru}
-                                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
-                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     ))}
                     <Button
@@ -366,6 +314,41 @@ export default function CreatePost() {
                     >
                         Добавить процедуру
                     </Button>
+                    <div className="flex gap-4 flex-col sm:flex-row">
+                        <div className="flex flex-col">
+                            <Label className="text-sm text-gray-600">
+                                Начальная дата
+                            </Label>
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                selectsStart
+                                startDate={startDate}
+                                endDate={endDate}
+                                dateFormat="dd.MM.yyyy"
+                                locale={ru}
+                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
+                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <Label className="text-sm text-gray-600">
+                                Конечная дата
+                            </Label>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                selectsEnd
+                                startDate={startDate}
+                                endDate={endDate}
+                                minDate={startDate}
+                                dateFormat="dd.MM.yyyy"
+                                locale={ru}
+                                className="rounded-lg bg-gray-50 border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-500 
+                                            dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500"
+                            />
+                        </div>
+                    </div>
                     <Button
                         type="submit"
                         gradientDuoTone="purpleToPink"

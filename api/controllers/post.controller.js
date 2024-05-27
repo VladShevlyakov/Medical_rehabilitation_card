@@ -1,17 +1,18 @@
 import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
-const formatPostData = (formDataList, userId) => {
-    return formDataList.map((formData) => {
-        const slug = formData.title
+const formatPostData = (procedures, userId, author) => {
+    return procedures.map((procedure) => {
+        const slug = procedure.title
             .split(" ")
             .join("-")
             .toLowerCase()
             .replace(/[^\wа-яёЁa-zA-Z0-9-]/g, "");
         return {
-            ...formData,
+            ...procedure,
             slug,
             userId: userId,
+            author: author,
         };
     });
 };
@@ -22,10 +23,23 @@ export const create = async (req, res, next) => {
     }
 
     try {
-        const userId = req.body.userId; // Получение userId из тела запроса
-        const postData = formatPostData(req.body.posts, userId); // Предполагается, что в req.body.posts массив данных постов
-        const savedPosts = await Post.create(postData);
-        res.status(201).json(savedPosts);
+        const { userId, author, place, startDate, endDate, procedures } =
+            req.body;
+        console.log("Received Start Date:", startDate); // Debugging
+        console.log("Received End Date:", endDate); // Debugging
+        const formattedProcedures = formatPostData(procedures, userId, author);
+
+        const newPost = new Post({
+            userId,
+            author,
+            place,
+            startDate,
+            endDate,
+            procedures: formattedProcedures,
+        });
+
+        const savedPost = await newPost.save();
+        res.status(201).json(savedPost);
     } catch (error) {
         next(error);
     }
@@ -36,8 +50,10 @@ export const getposts = async (req, res, next) => {
         const startIndex = parseInt(req.query.startIndex) || 0;
         const limit = parseInt(req.query.limit) || 9;
         const sortDirection = req.query.order === "asc" ? 1 : -1;
+
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
+            ...(req.query.postId && { _id: req.query.postId }),
         })
             .sort({ updatedAt: sortDirection })
             .skip(startIndex)

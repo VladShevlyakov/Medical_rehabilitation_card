@@ -10,6 +10,8 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import DoctorPrivateRoute from "./components/DoctorPrivateRoute";
 import CreatePost from "./pages/CreatePost";
+import PostPage from "./pages/PostPage";
+import DashPostsPatient from "./components/DashPostsPatient";
 
 export default function App() {
     return (
@@ -22,6 +24,11 @@ export default function App() {
                 <Route path="/sign-up" element={<SignUp />} />
                 <Route element={<PrivateRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/post/:post_id" element={<PostPage />} />
+                    <Route
+                        path="/dashPostsPatient"
+                        element={<DashPostsPatient />}
+                    />
                 </Route>
                 <Route element={<DoctorPrivateRoute />}>
                     <Route path="/create-post" element={<CreatePost />} />

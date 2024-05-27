@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-
+import { useNavigate } from "react-router-dom";
 export default function DashPosts() {
     const { currentUser } = useSelector((state) => state.user);
     const [userPosts, setUserPosts] = useState([]);
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -18,7 +19,6 @@ export default function DashPosts() {
                     `/api/post/getposts?userId=${currentUser._id}`
                 );
                 const data = await res.json();
-                console.log(data);
                 if (res.ok) {
                     setUserPosts(data.posts);
                     if (data.posts.length < 9) {
@@ -73,15 +73,15 @@ export default function DashPosts() {
     };
     return (
         <div
-            className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100
+            className="table-auto  md:mx-auto p-3  
 		"
         >
             {userPosts.length > 0 ? (
                 <>
                     <Table hoverable className="shadow-md">
                         <Table.Head>
-                            <Table.HeadCell>Дата создания</Table.HeadCell>
-                            <Table.HeadCell>Вид реабилитации</Table.HeadCell>
+                            <Table.HeadCell>Даты прохождения</Table.HeadCell>
+                            <Table.HeadCell>Главный Врач</Table.HeadCell>
                             <Table.HeadCell>Место прохождения</Table.HeadCell>
                             {currentUser.isDoctor && (
                                 <>
@@ -92,51 +92,59 @@ export default function DashPosts() {
                                 </>
                             )}
                         </Table.Head>
-                        {userPosts.map((post) => (
-                            <>
-                                <Table.Body className="divide-y ">
-                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell>
-                                            {new Date(
-                                                post.updatedAt
-                                            ).toLocaleDateString()}
-                                        </Table.Cell>
-                                        <Table.Cell className="flex justify-center">
-                                            <Link to={`/post/${post.slug}`}>
-                                                {post.category}
-                                            </Link>
-                                        </Table.Cell>
-                                        <Table.Cell>{post.place}</Table.Cell>
-                                        {currentUser.isDoctor && (
-                                            <>
-                                                <Table.Cell>
-                                                    <span
-                                                        onClick={() => {
-                                                            setShowModal(true);
-                                                            setPostIdToDelete(
-                                                                post._id
-                                                            );
-                                                        }}
-                                                        className="font-medium text-red-500 hover:underline
+                        <Table.Body className="divide-y ">
+                            {userPosts.map((post) => (
+                                <Table.Row
+                                    key={post._id}
+                                    onClick={() =>
+                                        navigate(`/post/${post._id}`)
+                                    }
+                                    className="cursor-pointer bg-white dark:border-gray-700 dark:bg-gray-800"
+                                >
+                                    <Table.Cell>
+                                        {new Date(
+                                            post.startDate
+                                        ).toLocaleDateString()}
+                                        {" - "}
+                                        {new Date(
+                                            post.endDate
+                                        ).toLocaleDateString()}
+                                    </Table.Cell>
+                                    <Table.Cell className="flex justify-center">
+                                        {post.author.surname}{" "}
+                                        {post.author.fullname}
+                                    </Table.Cell>
+                                    <Table.Cell>{post.place}</Table.Cell>
+
+                                    {currentUser.isDoctor && (
+                                        <>
+                                            <Table.Cell>
+                                                <span
+                                                    onClick={() => {
+                                                        setShowModal(true);
+                                                        setPostIdToDelete(
+                                                            post._id
+                                                        );
+                                                    }}
+                                                    className="font-medium text-red-500 hover:underline
 													cursor-pointer"
-                                                    >
-                                                        Удалить
-                                                    </span>
-                                                </Table.Cell>
-                                                <Table.Cell className="">
-                                                    <Link
-                                                        className="text-teal-500 hover:underline"
-                                                        to={`/post/${post._id}`}
-                                                    >
-                                                        <span>Изменить</span>
-                                                    </Link>
-                                                </Table.Cell>
-                                            </>
-                                        )}
-                                    </Table.Row>
-                                </Table.Body>
-                            </>
-                        ))}
+                                                >
+                                                    Удалить
+                                                </span>
+                                            </Table.Cell>
+                                            <Table.Cell className="">
+                                                <Link
+                                                    className="text-teal-500 hover:underline"
+                                                    to={`/post/${post._id}`}
+                                                >
+                                                    <span>Изменить</span>
+                                                </Link>
+                                            </Table.Cell>
+                                        </>
+                                    )}
+                                </Table.Row>
+                            ))}
+                        </Table.Body>
                     </Table>
                     {showMore && (
                         <button
@@ -164,7 +172,7 @@ export default function DashPosts() {
                         dark:text-gray-200 mb-4 mx-auto"
                         />
                         <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-                            Вы уверены, что хотите данную запись?
+                            Вы уверены, что хотите удалить данную запись?
                         </h3>
                         <div className="flex justify-center gap-10">
                             <Button color="failure" onClick={handleDeletePost}>

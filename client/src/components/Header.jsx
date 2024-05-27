@@ -37,14 +37,7 @@ export default function Header() {
                 </span>
                 Электронная Медицинская Карта Реабилитаций
             </Link>
-            <form>
-                <TextInput
-                    type="text"
-                    placeholder="Поиск..."
-                    rightIcon={AiOutlineSearch}
-                    className="hidden lg:inline"
-                />
-            </form>
+
             <Button className="w-12 h-10 lg:hidden" color="gray" pill>
                 <AiOutlineSearch />
             </Button>
@@ -111,15 +104,23 @@ export default function Header() {
             </div>
 
             <Navbar.Collapse>
-                <Navbar.Link active={path === "/"} as={"div"}>
-                    <Link to="/">Главная страница</Link>
-                </Navbar.Link>
-                <Navbar.Link active={path === "/about"} as={"div"}>
-                    <Link to="/about">О нас</Link>
-                </Navbar.Link>
-                <Navbar.Link active={path === "/projects"} as={"div"}>
-                    <Link to="/projects">Проекты</Link>
-                </Navbar.Link>
+                <div className="md:flex md:flex-row md:gap-16">
+                    <Navbar.Link active={path === "/"} as={"div"}>
+                        <Link to="/" className="dark:text-white">
+                            Главная страница
+                        </Link>
+                    </Navbar.Link>
+                    <Navbar.Link active={path === "/about"} as={"div"}>
+                        <Link to="/about" className="dark:text-white">
+                            О нас
+                        </Link>
+                    </Navbar.Link>
+                    <Navbar.Link active={path === "/projects"} as={"div"}>
+                        <Link to="/projects" className="dark:text-white">
+                            Проекты
+                        </Link>
+                    </Navbar.Link>
+                </div>
             </Navbar.Collapse>
         </Navbar>
     );

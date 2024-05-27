@@ -1,12 +1,19 @@
 import { Label, Sidebar } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { HiDocumentText } from "react-icons/hi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function DashInfoPatient() {
     const location = useLocation();
     const userData = location.state?.userData || {};
     const [formData, setFormData] = useState({});
+    const [tab, setTab] = useState("");
 
+    const navigate = useNavigate();
+
+    const handleNavigate = () => {
+        navigate("/dashPostsPatient", { state: { userData } });
+    };
     useEffect(() => {
         if (userData) {
             setFormData({
@@ -31,7 +38,7 @@ export default function DashInfoPatient() {
     const age = Math.floor(differenceMs / (1000 * 60 * 60 * 24 * 365));
 
     // Форматируем дату рождения в формат Д.М.Г.
-    const day = birthDate.getDate();
+    const day = birthDate.getDate().toString().padStart(2, "0");
     const month = (birthDate.getMonth() + 1).toString().padStart(2, "0"); // Добавляем ведущий ноль для месяца
     const year = birthDate.getFullYear();
 
@@ -91,6 +98,17 @@ export default function DashInfoPatient() {
                 <Sidebar.ItemGroup className="flex gap-1">
                     <Label className="text-base">Группа инвалидности:</Label>
                     {userData.disabilityGroup}
+                </Sidebar.ItemGroup>
+
+                <Sidebar.ItemGroup className="flex flex-col w-full gap-1">
+                    <Sidebar.Item
+                        icon={HiDocumentText}
+                        as="div"
+                        onClick={handleNavigate}
+                        className="cursor-pointer"
+                    >
+                        Записи
+                    </Sidebar.Item>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>
         </Sidebar>

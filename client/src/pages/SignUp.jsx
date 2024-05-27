@@ -61,6 +61,7 @@ export default function SignUp() {
             setLoading(false);
         }
     };
+
     return (
         <div className="min-h-screen mt-20 font-medium ">
             <div className="flex flex-col p-3 max-w-3xl  mx-auto md:flex-row gap-5">
@@ -76,7 +77,9 @@ export default function SignUp() {
                     </Link>
                     <p className="text-sm mt-5">
                         Это демо-приложение. Вы можете зарегистрироваться с
-                        помощью номера Полиса ЕМС и пароля или через google.
+                        помощью номера Полиса ОМС и пароля или через google.
+                        <br /> В будущем планируется сделать регистрацию через
+                        госуслуги.
                     </p>
                 </div>
                 {/* правая часть */}
