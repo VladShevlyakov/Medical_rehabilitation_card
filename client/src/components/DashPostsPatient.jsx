@@ -1,7 +1,7 @@
 import { Button, Modal, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import DashInfoPatient from "./DashInfoPatient";
@@ -129,7 +129,8 @@ export default function DashPostsPatient() {
                                             <>
                                                 <Table.Cell>
                                                     <span
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
                                                             setShowModal(true);
                                                             setPostIdToDelete(
                                                                 post._id

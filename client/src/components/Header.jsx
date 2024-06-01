@@ -1,4 +1,4 @@
-import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
+import { Avatar, Button, Dropdown, Navbar } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
@@ -74,12 +74,12 @@ export default function Header() {
                                 )}
                             </span>
                             <span className="block text-sm">
-                                {currentUser.snils ? (
+                                {currentUser.polis ? (
                                     <>
-                                        {currentUser.snils.slice(0, 4)}{" "}
-                                        {currentUser.snils.slice(4, 8)}{" "}
-                                        {currentUser.snils.slice(8, 12)}{" "}
-                                        {currentUser.snils.slice(12, 16)}
+                                        {currentUser.polis.slice(0, 4)}{" "}
+                                        {currentUser.polis.slice(4, 8)}{" "}
+                                        {currentUser.polis.slice(8, 12)}{" "}
+                                        {currentUser.polis.slice(12, 16)}
                                     </>
                                 ) : null}
                             </span>

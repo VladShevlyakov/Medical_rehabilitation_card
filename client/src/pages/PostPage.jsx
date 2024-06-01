@@ -1,4 +1,4 @@
-import { Button, Label, Spinner } from "flowbite-react";
+import { Alert, Button, Label, Spinner } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IoDocumentAttach } from "react-icons/io5";
@@ -115,6 +115,11 @@ export default function PostPage() {
                             )}
                         </div>
                     ))}
+                    {error && (
+                        <Alert color="failure" className="mt-5">
+                            {error}
+                        </Alert>
+                    )}
                 </div>
             </main>
         </div>

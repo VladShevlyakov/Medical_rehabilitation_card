@@ -4,8 +4,8 @@ import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
 // Проверка существования пользователя по снилсу
-const checkExistingSnils = async (snils) => {
-    const existingUser = await User.findOne({ snils });
+const checkExistingPolis = async (polis) => {
+    const existingUser = await User.findOne({ polis });
     return existingUser;
 };
 
@@ -16,13 +16,13 @@ const checkExistingEmail = async (email) => {
 };
 
 export const signup = async (req, res, next) => {
-    const { snils, email, password } = req.body;
+    const { polis, email, password } = req.body;
 
     if (
-        !snils ||
+        !polis ||
         !email ||
         !password ||
-        snils === "" ||
+        polis === "" ||
         email === "" ||
         password === ""
     ) {
@@ -30,8 +30,8 @@ export const signup = async (req, res, next) => {
     }
 
     // Проверка существования пользователя с указанным полисом
-    const existingSnilsUser = await checkExistingSnils(snils);
-    if (existingSnilsUser) {
+    const existingPolisUser = await checkExistingPolis(polis);
+    if (existingPolisUser) {
         return next(
             errorHandler(400, "Пользователь с таким Полисом уже существует")
         );
@@ -45,8 +45,8 @@ export const signup = async (req, res, next) => {
         );
     }
 
-    if (snils) {
-        if (req.body.snils.length !== 16) {
+    if (polis) {
+        if (req.body.polis.length !== 16) {
             return next(
                 errorHandler(
                     400,
@@ -54,12 +54,12 @@ export const signup = async (req, res, next) => {
                 )
             );
         }
-        if (req.body.snils[0] === "0") {
+        if (req.body.polis[0] === "0") {
             return next(
                 errorHandler(400, "Полис пользователя не может начинаться с 0")
             );
         }
-        if (!req.body.snils.match(/^\d+$/)) {
+        if (!req.body.polis.match(/^\d+$/)) {
             return next(
                 errorHandler(
                     400,
@@ -71,7 +71,7 @@ export const signup = async (req, res, next) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
     const newUser = new User({
-        snils,
+        polis,
         email,
         password: hashedPassword,
     });

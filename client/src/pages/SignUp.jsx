@@ -9,7 +9,7 @@ export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const formatSnils = (value) => {
+    const formatPolis = (value) => {
         // Удаляем все символы, кроме цифр
         const cleaned = value.replace(/\D+/g, "");
         // Разбиваем строку на части по 4 символа
@@ -22,8 +22,8 @@ export default function SignUp() {
         const { id, value } = e.target;
         let formattedValue = value;
 
-        if (id === "snils") {
-            formattedValue = formatSnils(value);
+        if (id === "polis") {
+            formattedValue = formatPolis(value);
         }
 
         setFormData({ ...formData, [id]: formattedValue });
@@ -31,13 +31,13 @@ export default function SignUp() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.snils || !formData.email || !formData.password) {
+        if (!formData.polis || !formData.email || !formData.password) {
             return setErrorMessage("Пожалуйста, заполните все поля");
         }
         // Удаляем пробелы из Полиса перед отправкой на сервер
         const formDataNew = {
             ...formData,
-            snils: formData.snils.replace(/\s+/g, ""),
+            polis: formData.polis.replace(/\s+/g, ""),
         };
         try {
             setLoading(true);
@@ -93,8 +93,8 @@ export default function SignUp() {
                             <TextInput
                                 type="text"
                                 placeholder="1234 1234 1234 1234"
-                                id="snils"
-                                value={formData.snils || ""}
+                                id="polis"
+                                value={formData.polis || ""}
                                 onChange={handleChange}
                             />
                         </div>

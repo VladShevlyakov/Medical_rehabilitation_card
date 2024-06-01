@@ -7,7 +7,7 @@ import {
     Radio,
     Select,
 } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -48,13 +48,14 @@ export default function DashProfile() {
     const [searchUserError, setSearchUserError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showModalSearch, setShowModalSearch] = useState(false);
-    const [snils, setSnils] = useState("");
+    const [polis, setPolis] = useState("");
     const [formData, setFormData] = useState({});
     const [dateOfBirth, setDateOfBirth] = useState(new Date());
     const filePickerRef = useRef();
     const [setAddress] = useState("");
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -62,24 +63,8 @@ export default function DashProfile() {
             setImageFileUrl(URL.createObjectURL(file));
         }
     };
-    useEffect(() => {
-        setDateOfBirth(currentUser.dateOfBirth || null);
-        if (imageFile) {
-            uploadImage();
-        }
-    }, [currentUser, imageFile]);
 
-    const uploadImage = async () => {
-        //     service firebase.storage {
-        //     match /b/{bucket}/o {
-        //         match /{allPaths=**} {
-        //         allow read;
-        //         allow write: if
-        //         request.resource.size < 2 * 1024 * 1024 &&
-        //         request.resource.contentType.matches('image/.*')
-        //         }
-        //     }
-        // }
+    const uploadImage = useCallback(async () => {
         setImageFileUploading(true);
         setImageFileUploadError(null);
         const storage = getStorage(app);
@@ -106,12 +91,22 @@ export default function DashProfile() {
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     setImageFileUrl(downloadURL);
-                    setFormData({ ...formData, profileImg: downloadURL });
+                    setFormData((prevFormData) => ({
+                        ...prevFormData,
+                        profileImg: downloadURL,
+                    }));
                     setImageFileUploading(false);
                 });
             }
         );
-    };
+    }, [imageFile]);
+
+    useEffect(() => {
+        setDateOfBirth(currentUser.dateOfBirth || null);
+        if (imageFile) {
+            uploadImage();
+        }
+    }, [currentUser, imageFile, uploadImage]);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -220,7 +215,7 @@ export default function DashProfile() {
         }
     };
 
-    const formatSnils = (value) => {
+    const formatPolis = (value) => {
         // Удаляем все символы, кроме цифр
         const cleaned = value.replace(/\D+/g, "");
         // Разбиваем строку на части по 4 символа
@@ -229,22 +224,21 @@ export default function DashProfile() {
         return match ? match.join(" ") : "";
     };
 
-    const handleSnilsSubmit = async () => {
+    const handlePolisSubmit = async () => {
         setSearchUserError(null);
         try {
-            const cleanedSnils = snils.replace(/\s+/g, "");
+            const cleanedPolis = polis.replace(/\s+/g, "");
             const res = await fetch("/api/user/search", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ snils: cleanedSnils }),
+                body: JSON.stringify({ polis: cleanedPolis }),
             });
             const data = await res.json();
 
             if (res.ok) {
                 navigate("/create-post", { state: { userData: data } });
-                console.log(data);
             } else {
                 setSearchUserError("Пользователь с таким полисом не найден");
             }
@@ -405,10 +399,10 @@ export default function DashProfile() {
                     <Label className="text-sm text-gray-600">Полис ОМС</Label>
                     <TextInput
                         type="number"
-                        id="snils"
+                        id="polis"
                         placeholder="Полис ОМС"
-                        defaultValue={currentUser.snils}
-                        disabled={currentUser.snils ? true : false}
+                        defaultValue={currentUser.polis}
+                        disabled={currentUser.polis ? true : false}
                         onChange={handleChange}
                     />
                 </div>
@@ -551,17 +545,17 @@ export default function DashProfile() {
                         mb-4 mx-auto"
                         />
                         <TextInput
-                            id="snils"
+                            id="polis"
                             type="text"
-                            value={snils}
+                            value={polis}
                             placeholder="1234 1234 1234 1234"
                             onChange={(e) =>
-                                setSnils(formatSnils(e.target.value))
+                                setPolis(formatPolis(e.target.value))
                             }
                         />
                     </div>
                     <div className="flex justify-center gap-10">
-                        <Button onClick={handleSnilsSubmit} color="gray">
+                        <Button onClick={handlePolisSubmit} color="gray">
                             Поиск
                         </Button>
                     </div>

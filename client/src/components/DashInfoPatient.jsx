@@ -1,13 +1,15 @@
 import { Label, Sidebar } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HiDocumentText } from "react-icons/hi";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function DashInfoPatient() {
     const location = useLocation();
-    const userData = location.state?.userData || {};
-    const [formData, setFormData] = useState({});
-    const [tab, setTab] = useState("");
+    const userData = useMemo(
+        () => location.state?.userData || {},
+        [location.state]
+    );
+    const [, setFormData] = useState({});
 
     const navigate = useNavigate();
 
@@ -17,13 +19,12 @@ export default function DashInfoPatient() {
     useEffect(() => {
         if (userData) {
             setFormData({
-                ...formData,
                 surname: userData.surname,
                 fullname: userData.fullname,
                 patronymic: userData.patronymic,
                 gender: userData.gender,
                 dateOfBirth: userData.dateOfBirth,
-                snils: userData.snils,
+                polis: userData.polis,
                 disabilityGroup: userData.disabilityGroup,
             });
         }
@@ -33,16 +34,13 @@ export default function DashInfoPatient() {
     const currentDate = new Date();
     // Рассчитываем разницу между текущей датой и датой рождения в миллисекундах
     const differenceMs = currentDate - birthDate;
-
     // Переводим миллисекунды в годы
     const age = Math.floor(differenceMs / (1000 * 60 * 60 * 24 * 365));
 
-    // Форматируем дату рождения в формат Д.М.Г.
+    // Форматируем дату рождения
     const day = birthDate.getDate().toString().padStart(2, "0");
     const month = (birthDate.getMonth() + 1).toString().padStart(2, "0"); // Добавляем ведущий ноль для месяца
     const year = birthDate.getFullYear();
-
-    // Форматируем дату рождения в формат Д.М.Г.
     const formattedBirthDate = `${day}.${month}.${year}`;
     const getAgeSuffix = (age) => {
         const lastDigit = age % 10;
@@ -51,7 +49,6 @@ export default function DashInfoPatient() {
         if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
             return "лет";
         }
-
         switch (lastDigit) {
             case 1:
                 return "год";
@@ -107,7 +104,7 @@ export default function DashInfoPatient() {
                         onClick={handleNavigate}
                         className="cursor-pointer"
                     >
-                        Записи
+                        Записи пациента
                     </Sidebar.Item>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>

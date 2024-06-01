@@ -6,7 +6,7 @@ import {
     Select,
     TextInput,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import ReactQuill from "react-quill";
 import {
@@ -42,6 +42,62 @@ export default function CreatePost() {
     const [endDate, setEndDate] = useState(null);
     const [publishError, setPublishError] = useState(null);
     const navigate = useNavigate();
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Формируем список процедур
+            const procedures = formDataList.map((formData) => ({
+                category: formData.category,
+                content: formData.content,
+                title: formData.title,
+                image: formData.image,
+            }));
+
+            const res = await fetch("/api/post/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId: userData._id, // Передаем userId пациента
+                    author: {
+                        // Информация о пользователе, создающем запись
+                        fullname: currentUser.fullname,
+                        surname: currentUser.surname,
+                    },
+                    place: currentUser.place,
+                    startDate,
+                    endDate,
+                    procedures,
+                }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setPublishError(data.message);
+                return;
+            }
+            if (res.ok) {
+                setPublishError(null);
+                navigate("/post");
+            }
+        } catch (error) {
+            setPublishError("Что-то пошло не так");
+        }
+    };
+
+    const addProcedureForm = () => {
+        setFormDataList((prevFormDataList) => [
+            ...prevFormDataList,
+            { category: "", content: "", title: "", image: "", file: "" },
+        ]);
+        setFileUploadProgress((prevProgressList) => [
+            ...prevProgressList,
+            null,
+        ]);
+        setFileUploadError((prevErrors) => [...prevErrors, null]);
+    };
 
     const handleUploadFile = async (index) => {
         try {
@@ -122,62 +178,6 @@ export default function CreatePost() {
             });
             console.log(error);
         }
-    };
-
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            // Формируем список процедур
-            const procedures = formDataList.map((formData) => ({
-                category: formData.category,
-                content: formData.content,
-                title: formData.title,
-                image: formData.image,
-            }));
-
-            const res = await fetch("/api/post/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId: userData._id, // Передаем userId пациента
-                    author: {
-                        // Информация о пользователе, создающем запись
-                        fullname: currentUser.fullname,
-                        surname: currentUser.surname,
-                    },
-                    place: currentUser.place,
-                    startDate,
-                    endDate,
-                    procedures,
-                }),
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                setPublishError(data.message);
-                return;
-            }
-            if (res.ok) {
-                setPublishError(null);
-                navigate("/post");
-            }
-        } catch (error) {
-            setPublishError("Что-то пошло не так");
-        }
-    };
-
-    const addProcedureForm = () => {
-        setFormDataList((prevFormDataList) => [
-            ...prevFormDataList,
-            { category: "", content: "", title: "", image: "", file: "" },
-        ]);
-        setFileUploadProgress((prevProgressList) => [
-            ...prevProgressList,
-            null,
-        ]);
-        setFileUploadError((prevErrors) => [...prevErrors, null]);
     };
 
     return (

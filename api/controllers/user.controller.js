@@ -20,8 +20,8 @@ export const updateUser = async (req, res, next) => {
         }
         req.body.password = bcryptjs.hashSync(req.body.password, 10);
     }
-    if (req.body.snils) {
-        if (req.body.snils.length !== 16) {
+    if (req.body.polis) {
+        if (req.body.polis.length !== 16) {
             return next(
                 errorHandler(
                     400,
@@ -29,12 +29,12 @@ export const updateUser = async (req, res, next) => {
                 )
             );
         }
-        if (req.body.snils[0] === "0") {
+        if (req.body.polis[0] === "0") {
             return next(
                 errorHandler(400, "Полис пользователя не должен начинаться с 0")
             );
         }
-        if (req.body.snils.includes(" ")) {
+        if (req.body.polis.includes(" ")) {
             return next(
                 errorHandler(
                     400,
@@ -42,7 +42,7 @@ export const updateUser = async (req, res, next) => {
                 )
             );
         }
-        if (!req.body.snils.match(/^\d+$/)) {
+        if (!req.body.polis.match(/^\d+$/)) {
             return next(
                 errorHandler(
                     400,
@@ -56,7 +56,7 @@ export const updateUser = async (req, res, next) => {
             req.params.userId,
             {
                 $set: {
-                    snils: req.body.snils,
+                    polis: req.body.polis,
                     surname: req.body.surname,
                     fullname: req.body.fullname,
                     patronymic: req.body.patronymic,
@@ -80,9 +80,9 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const searchPolis = async (req, res, next) => {
-    const { snils } = req.body;
+    const { polis } = req.body;
     try {
-        const validUser = await User.findOne({ snils });
+        const validUser = await User.findOne({ polis });
         if (!validUser) {
             return next(
                 errorHandler(404, "Пользователь с таким полисом не найден")

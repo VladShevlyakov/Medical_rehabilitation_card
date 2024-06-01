@@ -25,8 +25,6 @@ export const create = async (req, res, next) => {
     try {
         const { userId, author, place, startDate, endDate, procedures } =
             req.body;
-        console.log("Received Start Date:", startDate); // Debugging
-        console.log("Received End Date:", endDate); // Debugging
         const formattedProcedures = formatPostData(procedures, userId, author);
 
         const newPost = new Post({
@@ -45,7 +43,7 @@ export const create = async (req, res, next) => {
     }
 };
 
-export const getposts = async (req, res, next) => {
+export const getPosts = async (req, res, next) => {
     try {
         const startIndex = parseInt(req.query.startIndex) || 0;
         const limit = parseInt(req.query.limit) || 9;
@@ -67,10 +65,24 @@ export const getposts = async (req, res, next) => {
     }
 };
 
-export const deletepost = async (req, res, next) => {
-    if (!req.user.isDoctor || req.user.id !== req.params.userId) {
+export const deletePost = async (req, res, next) => {
+    if (!req.user.isDoctor) {
         return next(errorHandler(403, "Вы не можете удалить этот пост"));
     }
+
+    const post = await Post.findOne({
+        _id: req.params.postId,
+        userId: req.params.userId,
+    });
+    if (!post) {
+        return next(
+            errorHandler(
+                404,
+                "Запись не найдена или у вас нет прав на ее удаление"
+            )
+        );
+    }
+
     try {
         await Post.findByIdAndDelete(req.params.postId);
         res.status(200).json("Пост удален");

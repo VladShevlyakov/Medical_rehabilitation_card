@@ -72,10 +72,7 @@ export default function DashPosts() {
         }
     };
     return (
-        <div
-            className="table-auto  md:mx-auto p-3  
-		"
-        >
+        <div className="table-auto  md:mx-auto p-3">
             {userPosts.length > 0 ? (
                 <>
                     <Table hoverable className="shadow-md">
